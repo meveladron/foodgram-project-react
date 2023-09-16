@@ -78,15 +78,8 @@ jobs:
           # Restart the Docker Compose stack
           cd /path/to/your/app
 
-          # Start the updated containers with environment variables
-          sudo docker-compose up -d --build \
-            -e SECRET_KEY='${{ secrets.SECRET_KEY }}' \
-            -e DB_ENGINE='${{ secrets.DB_ENGINE }}' \
-            -e DB_NAME='${{ secrets.DB_NAME }}' \
-            -e POSTGRES_USER='${{ secrets.POSTGRES_USER }}' \
-            -e POSTGRES_PASSWORD='${{ secrets.POSTGRES_PASSWORD }}' \
-            -e DB_HOST='${{ secrets.DB_HOST }}' \
-            -e DB_PORT='${{ secrets.DB_PORT }}'
+          # Start the updated containers
+          sudo docker-compose up -d --build
 
           # Log the deployment
           echo "Deployment completed at $(date)" >> deployment.log
