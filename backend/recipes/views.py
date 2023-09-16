@@ -56,13 +56,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 user=user,
                 recipe=OuterRef('id')
             )
-            queryset = Recipe.objects.prefetch_related('ingredients').annotate(
+            return Recipe.objects.prefetch_related('ingredients').annotate(
                 is_favorited=Exists(is_favorited),
                 is_in_shopping_cart=Exists(is_in_shopping_cart)
             )
         else:
-            queryset = Recipe.objects.all()
-        return queryset
+            return Recipe.objects.all()
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
