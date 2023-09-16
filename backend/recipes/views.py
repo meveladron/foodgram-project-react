@@ -1,6 +1,15 @@
+from api.filters import IngredientFilter, RecipeFilter
+from api.paginator import CustomPaginator
+from api.permissions import (IsAdminOrReadOnly, IsAuthorOrReadOnly,
+                             IsModeratorOrReadOnly)
+from api.serializers import (CreateRecipeSerializer, FavoriteSerializer,
+                             IngredientSerializer, ShoppingCartSerializer,
+                             ShowRecipeSerializer, TagSerializer)
 from django.db.models import Exists, OuterRef
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
+from recipes.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
+                            ShoppingCart, Tag)
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
@@ -9,16 +18,6 @@ from rest_framework.decorators import action
 from rest_framework.permissions import (AllowAny, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
-
-from api.filters import IngredientFilter, RecipeFilter
-from api.paginator import CustomPaginator
-from api.permissions import (IsAdminOrReadOnly, IsAuthorOrReadOnly,
-                             IsModeratorOrReadOnly)
-from api.serializers import (CreateRecipeSerializer, FavoriteSerializer,
-                             IngredientSerializer, ShoppingCartSerializer,
-                             ShowRecipeSerializer, TagSerializer)
-from recipes.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
-                            ShoppingCart, Tag)
 
 
 class TagViewSet(viewsets.ModelViewSet):
@@ -47,6 +46,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+        queryset = Recipe.objects.all()
         if not user.is_anonymous:
             is_favorited = Favorite.objects.filter(
                 user=user,
@@ -56,16 +56,17 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 user=user,
                 recipe=OuterRef('id')
             )
-            return Recipe.objects.prefetch_related('ingredients').annotate(
+            queryset = Recipe.objects.prefetch_related('ingredients').annotate(
                 is_favorited=Exists(is_favorited),
                 is_in_shopping_cart=Exists(is_in_shopping_cart)
             )
-        return Recipe.objects.all()
+        return queryset
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return ShowRecipeSerializer
-        return CreateRecipeSerializer
+        else:
+            return CreateRecipeSerializer
 
     @action(
         detail=False, methods=["GET"], permission_classes=[IsAuthenticated]

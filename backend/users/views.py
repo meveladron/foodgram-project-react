@@ -22,31 +22,20 @@ class UserViewSet(UserViewSet):
             is_subscribed=Exists(is_subscribed)
         )
 
-   @action(detail=True, methods=['POST', 'DELETE'])
+    @action(detail=True, methods=['POST', 'DELETE'])
     def subscribe(self, request, **kwargs):
-        """Method allows follow any user or unfollow."""
         user = request.user
         author_id = self.kwargs.get('id')
         author = get_object_or_404(User, id=author_id)
 
         if request.method == 'POST':
-            serializer = ShowSubscriptionsSerializer(
-                author, data=request.data, context={'request': request}
-            )
-            serializer.is_valid(raise_exception=True)
-            Follow.objects.create(user=user, author=author)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return self._subscribe_to_author(user, author, request.data)
 
         if request.method == 'DELETE':
-            subscription = get_object_or_404(
-                Follow, user=user, author=author
-            )
-            subscription.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return self._unsubscribe_from_author(user, author)
 
     @action(detail=False)
     def subscriptions(self, request):
-        """Method shows user's subscriptions."""
         user = request.user
         queryset = User.objects.filter(following__user=user)
         pages = self.paginate_queryset(queryset)
@@ -54,3 +43,16 @@ class UserViewSet(UserViewSet):
             pages, many=True, context={'request': request}
         )
         return self.get_paginated_response(serializer.data)
+
+    def _subscribe_to_author(self, user, author, data):
+        serializer = ShowSubscriptionsSerializer(
+            author, data=data, context={'request': self.request}
+        )
+        serializer.is_valid(raise_exception=True)
+        Follow.objects.create(user=user, author=author)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def _unsubscribe_from_author(self, user, author):
+        subscription = get_object_or_404(Follow, user=user, author=author)
+        subscription.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
