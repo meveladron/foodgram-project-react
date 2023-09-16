@@ -2,7 +2,10 @@ from rest_framework import permissions
 
 
 class IsAdminOrReadOnly(permissions.BasePermission):
-    """Пользовательское разрешение для изменения данных только суперпользователем"""
+    """
+    Пользовательское разрешение для
+    изменения данных только суперпользователем
+    """
     def has_permission(self, request, view):
         is_safe_method = request.method in permissions.SAFE_METHODS
         is_admin_or_superuser = request.user.is_authenticated and (

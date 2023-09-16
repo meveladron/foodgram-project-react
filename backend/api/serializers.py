@@ -25,12 +25,6 @@ class UserCommonFieldsSerializer(serializers.ModelSerializer):
         )
 
 
-class UserSerializer(UserCommonFieldsSerializer):
-    """Сериализатор пользователя."""
-    class Meta(UserCommonFieldsSerializer.Meta):
-        pass
-
-
 class CreateUserSerializer(UserCreateSerializer):
     """Сериализатор создания пользователя."""
     class Meta:
