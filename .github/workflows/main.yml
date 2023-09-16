@@ -8,9 +8,6 @@ on:
 jobs:
   tests:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.7", "3.8", "3.9"]
 
     steps:
       - name: Checkout code
@@ -19,7 +16,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: 3.9
 
       - name: Install dependencies
         run: | 
@@ -74,10 +71,10 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           script: |
-            cd infra
+            cd foodgram
             sudo docker-compose down
-            sudo docker pull d1sp1nyt/foodgram_frontend:latest
-            sudo docker pull d1sp1nyt/foodgram_backend:latest
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
+            sudo docker pull ${{ secrets.DOCKER_PASSWORD }}/foodgram_backend:latest
             touch .env
             echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
             echo DB_NAME=${{ secrets.DB_NAME }} >> .env
@@ -96,4 +93,4 @@ jobs:
         with:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
-          message: ${{ github.workflow }} Деплой успешно ыйволнен!
+          message: ${{ github.workflow }} Деплой успешно выполнен!
