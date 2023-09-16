@@ -1,4 +1,4 @@
-from djoser.serializers import UserCreateSerializer, UserSerializer
+from djoser.serializers import UserCreateSerializer as DjoserUserCreateSerializer, UserSerializer as DjoserUserSerializer
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
@@ -31,7 +31,7 @@ class UserSerializer(UserCommonFieldsSerializer):
         pass
 
 
-class CreateUserSerializer(UserCreateSerializer):
+class CreateUserSerializer(DjoserUserCreateSerializer):
     """Сериализатор создания пользователя."""
     class Meta:
         model = User
