@@ -80,25 +80,21 @@ jobs:
           DB_HOST: ${{ secrets.DB_HOST }}
           DB_PORT: ${{ secrets.DB_PORT }}
 
-        script: |
-          # Pull the latest Docker image
-          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgramer:latest
+      run: |
+        sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgramer:latest
 
-          # Restart the Docker Compose stack
-          cd /path/to/your/app
+        cd /path/to/your/app
 
-          # Start the updated containers with environment variables
-          sudo docker-compose up -d --build \
-            -e SECRET_KEY=${SECRET_KEY} \
-            -e DB_ENGINE=${DB_ENGINE} \
-            -e DB_NAME=${DB_NAME} \
-            -e POSTGRES_USER=${POSTGRES_USER} \
-            -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \
-            -e DB_HOST=${DB_HOST} \
-            -e DB_PORT=${DB_PORT}
+        sudo docker-compose up -d --build \
+          -e SECRET_KEY=${SECRET_KEY} \
+          -e DB_ENGINE=${DB_ENGINE} \
+          -e DB_NAME=${DB_NAME} \
+          -e POSTGRES_USER=${POSTGRES_USER} \
+          -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \
+          -e DB_HOST=${DB_HOST} \
+          -e DB_PORT=${DB_PORT}
 
-          # Log the deployment
-          echo "Deployment completed at $(date)" >> deployment.log
+        echo "Deployment completed at $(date)" >> deployment.log
 
   telegram_message:
     name: Send Telegram message
