@@ -37,23 +37,15 @@ class CreateUserSerializer(UserCreateSerializer):
         fields = ('email', 'username', 'first_name', 'last_name', 'password',)
 
 
-class ShowSubscriptionsSerializer(UserSerializer):
+class ShowSubscriptionsSerializer(UserCommonFieldsSerializer):
+    """Сериализатор для отображения подписок пользователя."""
     recipes = SerializerMethodField()
     recipes_count = SerializerMethodField()
 
-    class Meta:
-        model = User
-        fields = (
-            'email',
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-            'is_subscribed',
-            'recipes',
-            'recipes_count',
+    class Meta(UserCommonFieldsSerializer.Meta):
+        fields = UserCommonFieldsSerializer.Meta.fields + (
+            'recipes', 'recipes_count',
         )
-        read_only_fields = ('email', 'username', 'first_name', 'last_name',)
 
     def validate(self, data):
         author = self.instance
@@ -61,12 +53,12 @@ class ShowSubscriptionsSerializer(UserSerializer):
         if Follow.objects.filter(author=author, user=user).exists():
             raise ValidationError(
                 detail='Подписка уже существует.',
-                code=status.HTTP_400_BAD_REQUEST,
+                code=status.HTTP_400_BAD_REQUEST
             )
         if user == author:
             raise ValidationError(
                 detail='Нельзя подписаться на самого себя.',
-                code=status.HTTP_400_BAD_REQUEST,
+                code=status.HTTP_400_BAD_REQUEST
             )
         return data
 
