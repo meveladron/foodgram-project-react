@@ -47,7 +47,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        queryset = Recipe.objects.all()
         if not user.is_anonymous:
             is_favorited = Favorite.objects.filter(
                 user=user,
@@ -61,13 +60,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 is_favorited=Exists(is_favorited),
                 is_in_shopping_cart=Exists(is_in_shopping_cart)
             )
+        else:
+            queryset = Recipe.objects.all()
         return queryset
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return ShowRecipeSerializer
-        else:
-            return CreateRecipeSerializer
+        return CreateRecipeSerializer
 
     @action(
         detail=False, methods=["GET"], permission_classes=[IsAuthenticated]
