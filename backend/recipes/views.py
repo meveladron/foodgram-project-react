@@ -60,8 +60,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 is_favorited=Exists(is_favorited),
                 is_in_shopping_cart=Exists(is_in_shopping_cart)
             )
-        else:
-            return Recipe.objects.all()
+        return Recipe.objects.all()
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
