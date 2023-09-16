@@ -1,5 +1,6 @@
 from rest_framework import permissions
 
+
 class IsAdminOrReadOnly(permissions.BasePermission):
     """Пользовательское разрешение для изменения данных только суперпользователем"""
     def has_permission(self, request, view):
@@ -18,6 +19,7 @@ class IsAdminOrReadOnly(permissions.BasePermission):
 
         return is_safe_method or is_admin_or_superuser
 
+
 class IsAuthorOrReadOnly(permissions.BasePermission):
     """Пользовательское разрешение для изменения данных только авторам."""
     def has_object_permission(self, request, view, target_object):
@@ -25,6 +27,7 @@ class IsAuthorOrReadOnly(permissions.BasePermission):
             request.method in permissions.SAFE_METHODS
             or target_object.author == request.user
         )
+
 
 class IsModeratorOrReadOnly(permissions.BasePermission):
     """Пользовательское разрешение для изменения данных только модераторам."""
