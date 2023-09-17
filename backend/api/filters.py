@@ -37,7 +37,6 @@ class RecipeFilter(FilterSet):
 
     def filter_queryset(self, queryset):
         queryset = super().filter_queryset(queryset)
-
         if self.request.user.is_authenticated:
             is_favorited = Favorite.objects.filter(
                 user=self.request.user,
@@ -51,7 +50,6 @@ class RecipeFilter(FilterSet):
                 is_favorited=Exists(is_favorited),
                 is_in_shopping_cart=Exists(is_in_shopping_cart)
             )
-
         return queryset
 
     def if_is_favorited(self, queryset, name, value):
