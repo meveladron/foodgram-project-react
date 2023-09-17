@@ -1,3 +1,5 @@
+from api.paginator import CustomPaginator
+from api.serializers import ShowSubscriptionsSerializer, UserSerializer
 from django.db.models import Exists, OuterRef
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
@@ -5,9 +7,6 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
-from api.paginator import CustomPaginator
-from api.serializers import ShowSubscriptionsSerializer, UserSerializer
 from users.models import Follow, User
 
 
@@ -18,9 +17,10 @@ class UserViewSet(UserViewSet):
 
     def get_queryset(self):
         user = get_object_or_404(User, id=self.request.user.id)
-        is_subscribed = Follow.objects.filter(user=user, author=OuterRef('id'))
         return User.objects.annotate(
-            is_subscribed=Exists(is_subscribed)
+            is_subscribed=Exists(
+                Follow.objects.filter(user=user, author=OuterRef('id'))
+            )
         )
 
     @action(detail=True, methods=['POST', 'DELETE'])

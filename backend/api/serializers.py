@@ -1,11 +1,11 @@
+from django.db import transaction
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
+from recipes.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
+                            ShoppingCart, Tag)
 from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import SerializerMethodField
-
-from recipes.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
-                            ShoppingCart, Tag)
 from users.models import Follow, User
 
 
@@ -24,6 +24,10 @@ class UserCommonFieldsSerializer(serializers.ModelSerializer):
             'is_subscribed',
         )
 
+class UserSerializer(UserCommonFieldsSerializer):
+    """Сериализатор пользователя."""
+    class Meta(UserCommonFieldsSerializer.Meta):
+        pass
 
 class CreateUserSerializer(UserCreateSerializer):
     """Сериализатор создания пользователя."""
@@ -33,9 +37,10 @@ class CreateUserSerializer(UserCreateSerializer):
 
 
 class ShowSubscriptionsSerializer(UserSerializer):
-    """Сериализатор отображения подписок."""
+    """Сериализатор для отображения подписок."""
     recipes = SerializerMethodField()
     recipes_count = SerializerMethodField()
+    is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -50,6 +55,13 @@ class ShowSubscriptionsSerializer(UserSerializer):
             'recipes_count',
         )
         read_only_fields = ('email', 'username', 'first_name', 'last_name',)
+
+    def get_is_subscribed(self, obj):
+        request = self.context.get('request')
+        user = request.user if request else None
+        if user and user.is_authenticated:
+            return Follow.objects.filter(author=obj, user=user).exists()
+        return False
 
     def validate(self, data):
         author = self.instance
@@ -174,6 +186,7 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
             )
         IngredientRecipe.objects.bulk_create(ingredient_list)
 
+    @transaction.atomic
     def create(self, validated_data):
         request = self.context.get('request', None)
         tags = validated_data.pop('tags')
@@ -183,6 +196,7 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         self.create_ingredients(recipe, ingredients)
         return recipe
 
+    @transaction.atomic
     def update(self, instance, validated_data):
         instance.tags.clear()
         IngredientRecipe.objects.filter(recipe=instance).delete()

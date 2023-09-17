@@ -11,7 +11,6 @@ class IsAdminOrReadOnly(permissions.BasePermission):
         is_admin_or_superuser = request.user.is_authenticated and (
             request.user.is_admin or request.user.is_superuser
         )
-
         return is_safe_method or is_admin_or_superuser
 
     def has_object_permission(self, request, view, obj):
@@ -19,7 +18,6 @@ class IsAdminOrReadOnly(permissions.BasePermission):
         is_admin_or_superuser = request.user.is_authenticated and (
             request.user.is_admin or request.user.is_superuser
         )
-
         return is_safe_method or is_admin_or_superuser
 
 
@@ -29,13 +27,4 @@ class IsAuthorOrReadOnly(permissions.BasePermission):
         return (
             request.method in permissions.SAFE_METHODS
             or target_object.author == request.user
-        )
-
-
-class IsModeratorOrReadOnly(permissions.BasePermission):
-    """Пользовательское разрешение для изменения данных только модераторам."""
-    def has_object_permission(self, request, view, target_object):
-        return (
-            request.method in permissions.SAFE_METHODS
-            or request.user.is_moderator
         )
