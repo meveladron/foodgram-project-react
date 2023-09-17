@@ -25,10 +25,12 @@ class UserCommonFieldsSerializer(serializers.ModelSerializer):
             'is_subscribed',
         )
 
+
 class UserSerializer(UserCommonFieldsSerializer):
     """Сериализатор пользователя."""
     class Meta(UserCommonFieldsSerializer.Meta):
         pass
+
 
 class CreateUserSerializer(UserCreateSerializer):
     """Сериализатор создания пользователя."""

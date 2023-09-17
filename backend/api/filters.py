@@ -54,14 +54,10 @@ class RecipeFilter(FilterSet):
 
     def if_is_favorited(self, queryset, name, value):
         if value and self.request.user.is_authenticated:
-            return queryset.filter(
-                favorites__user=self.request.user
-            )
+            return queryset.filter(favorites__user=self.request.user)
         return queryset
 
     def if_is_in_shopping_cart(self, queryset, name, value):
         if value and self.request.user.is_authenticated:
-            return queryset.filter(
-                shopping_list__user=self.request.user
-            )
+            return queryset.filter(shopping_list__user=self.request.user)
         return queryset
