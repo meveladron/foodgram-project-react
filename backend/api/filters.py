@@ -1,8 +1,9 @@
 from django.contrib.auth import get_user_model
+from django.db.models import Exists, OuterRef
 from django_filters.rest_framework import FilterSet, filters
 from rest_framework.filters import SearchFilter
 
-from recipes.models import Ingredient, Recipe
+from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart
 
 User = get_user_model()
 
@@ -34,6 +35,25 @@ class RecipeFilter(FilterSet):
             'is_in_shopping_cart',
         )
 
+    def filter_queryset(self, queryset):
+        queryset = super().filter_queryset(queryset)
+
+        if self.request.user.is_authenticated:
+            is_favorited = Favorite.objects.filter(
+                user=self.request.user,
+                recipe=OuterRef('id')
+            )
+            is_in_shopping_cart = ShoppingCart.objects.filter(
+                user=self.request.user,
+                recipe=OuterRef('id')
+            )
+            queryset = queryset.annotate(
+                is_favorited=Exists(is_favorited),
+                is_in_shopping_cart=Exists(is_in_shopping_cart)
+            )
+
+        return queryset
+
     def if_is_favorited(self, queryset, name, value):
         if value and self.request.user.is_authenticated:
             return queryset.filter(
@@ -46,4 +66,4 @@ class RecipeFilter(FilterSet):
             return queryset.filter(
                 shopping_list__user=self.request.user
             )
-        return
+        return queryset

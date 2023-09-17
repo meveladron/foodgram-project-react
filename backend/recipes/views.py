@@ -1,18 +1,19 @@
+from django.db.models import Sum
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import mixins, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.permissions import (AllowAny, IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
+from rest_framework.response import Response
+
 from api.filters import IngredientFilter, RecipeFilter
 from api.paginator import CustomPaginator
 from api.permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
 from api.serializers import (CreateRecipeSerializer, FavoriteSerializer,
                              IngredientSerializer, ShoppingCartSerializer,
                              ShowRecipeSerializer, TagSerializer)
-from django.db.models import Exists, OuterRef, Sum
-from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
                             ShoppingCart, Tag)
-from rest_framework import mixins, status, viewsets
-from rest_framework.decorators import action
-from rest_framework.permissions import (AllowAny, IsAuthenticated,
-                                        IsAuthenticatedOrReadOnly)
-from rest_framework.response import Response
 
 from .utils import generate_shopping_cart_pdf
 
@@ -42,22 +43,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filterset_class = RecipeFilter
 
     def get_queryset(self):
-        user = self.request.user
-        queryset = Recipe.objects.all()
-        if not user.is_anonymous:
-            is_favorited = Favorite.objects.filter(
-                user=user,
-                recipe=OuterRef('id')
-            )
-            is_in_shopping_cart = ShoppingCart.objects.filter(
-                user=user,
-                recipe=OuterRef('id')
-            )
-            queryset = Recipe.objects.prefetch_related('ingredients').annotate(
-                is_favorited=Exists(is_favorited),
-                is_in_shopping_cart=Exists(is_in_shopping_cart)
-            )
-        return queryset
+        return Recipe.objects.all()
 
     def get_serializer_class(self):
         if self.request.method == 'GET':

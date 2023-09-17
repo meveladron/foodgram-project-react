@@ -1,5 +1,3 @@
-from api.paginator import CustomPaginator
-from api.serializers import ShowSubscriptionsSerializer, UserSerializer
 from django.db.models import Exists, OuterRef
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
@@ -7,6 +5,9 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+
+from api.paginator import CustomPaginator
+from api.serializers import ShowSubscriptionsSerializer, UserSerializer
 from users.models import Follow, User
 
 
