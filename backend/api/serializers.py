@@ -26,7 +26,7 @@ class UserCommonFieldsSerializer(serializers.ModelSerializer):
         )
 
 
-class CustomUserSerializer(UserCommonFieldsSerializer):
+class UserSerializer(UserCommonFieldsSerializer):
     """Сериализатор пользователя."""
     class Meta(UserCommonFieldsSerializer.Meta):
         pass
