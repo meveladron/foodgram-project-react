@@ -10,7 +10,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 DEBUG = os.getenv('DEBUG')
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', default='')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', default=['158.160.70.56', '127.0.0.1', 'localhost', 'fooddisp.bounceme.net'])
 
 AUTH_USER_MODEL = 'users.User'
 

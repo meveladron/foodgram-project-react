@@ -9,7 +9,7 @@ services:
       - .env
 
   backend:
-    image: d1sp1nyt/foodgram_backend
+    image: d1sp1nyt/foodgram_backend:latest
     volumes:
       - static_value:/app/static/
       - media_value:/app/media/
@@ -21,7 +21,7 @@ services:
     container_name: foodgram_backend
 
   frontend:
-    image: d1sp1nyt/foodgram_frontend
+    image: d1sp1nyt/foodgram_frontend:latest
     volumes:
       - ../frontend/:/app/result_build/
     depends_on:

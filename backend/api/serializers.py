@@ -62,9 +62,7 @@ class ShowSubscriptionsSerializer(UserSerializer):
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
         user = request.user if request else None
-        if user and user.is_authenticated:
-            return Follow.objects.filter(author=obj, user=user).exists()
-        return False
+        return (user is not None and user.is_authenticated) or False
 
     def validate(self, data):
         author = self.instance

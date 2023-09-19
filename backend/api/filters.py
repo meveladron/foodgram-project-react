@@ -18,7 +18,6 @@ class IngredientFilter(SearchFilter):
 
 
 class RecipeFilter(FilterSet):
-    """Фильтр поиска рецептов."""
     tags = filters.AllValuesMultipleFilter(field_name='tags__slug')
     author = filters.ModelChoiceFilter(queryset=User.objects.all())
     is_favorited = filters.BooleanFilter(method='if_is_favorited')
@@ -35,29 +34,24 @@ class RecipeFilter(FilterSet):
             'is_in_shopping_cart',
         )
 
-    def filter_queryset(self, queryset):
-        queryset = super().filter_queryset(queryset)
-        if self.request.user.is_authenticated:
+    def if_is_favorited(self, queryset, name, value):
+        if value and self.request.user.is_authenticated:
             is_favorited = Favorite.objects.filter(
                 user=self.request.user,
                 recipe=OuterRef('id')
             )
-            is_in_shopping_cart = ShoppingCart.objects.filter(
-                user=self.request.user,
-                recipe=OuterRef('id')
-            )
-            queryset = queryset.annotate(
-                is_favorited=Exists(is_favorited),
-                is_in_shopping_cart=Exists(is_in_shopping_cart)
-            )
-        return queryset
-
-    def if_is_favorited(self, queryset, name, value):
-        if value and self.request.user.is_authenticated:
-            return queryset.filter(favorites__user=self.request.user)
+            return queryset.annotate(
+                is_favorited=Exists(is_favorited)
+            ).filter(favorites__user=self.request.user)
         return queryset
 
     def if_is_in_shopping_cart(self, queryset, name, value):
         if value and self.request.user.is_authenticated:
-            return queryset.filter(shopping_list__user=self.request.user)
+            is_in_shopping_cart = ShoppingCart.objects.filter(
+                user=self.request.user,
+                recipe=OuterRef('id')
+            )
+            return queryset.annotate(
+                is_in_shopping_cart=Exists(is_in_shopping_cart)
+            ).filter(shopping_list__user=self.request.user)
         return queryset
